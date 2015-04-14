@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ 
+<configuration>
+    <service uuid="1800">
+        <description>Generic Access Profile</description>
+ 
+        <characteristic uuid="2a00">
+            <properties read="true" const="true" />
+            <value type="utf-8">MPU6050 BLE113</value>
+        </characteristic>
+ 
+        <characteristic uuid="2a01">
+            <properties read="true" const="true" />
+            <value type="hex">4142</value>
+        </characteristic>
+    </service>
+ 
+    <service uuid="aaa51666-e7cb-469b-8e4d-2742f1ba7aaa" advertise="true">
+ 
+        <characteristic uuid="a12d0001-1700-6050-0001-001210ff0e17" id="xgatt_write">
+            <description>Written Data</description>
+            <properties write="true" />
+            <value variable_length="true" length="20" />
+        </characteristic>    
+ 
+        <characteristic uuid="a12d0001-1700-6050-0002-500000000001" id="xgatt_who">
+            <description>Who Am I</description>
+            <properties read="true" notify="true" />
+            <value length="1" />
+        </characteristic>
+ 
+        <characteristic uuid="a12d0001-1700-6050-0002-060aa12c0171" id="xgatt_pwr1">
+            <description>Power Config 1</description>
+            <properties read="true" notify="true" />
+            <value length="1" />
+        </characteristic>
+ 
+        <characteristic uuid="a12d0001-1700-6050-0002-060aa12c0172" id="xgatt_pwr2">
+            <description>Power Config 2</description>
+            <properties read="true" notify="true" />
+            <value length="1" />
+        </characteristic>
+ 
+        <characteristic uuid="a12d0001-1700-6050-0002-12a0f0ed141d" id="xgatt_ratediv">
+            <description>RateDivider</description>
+            <properties read="true" notify="true" />
+            <value length="1" />
+        </characteristic>
+ 
+        <characteristic uuid="a12d0001-1700-6050-0002-acce19a11200" id="xgatt_sensor">
+            <description>Sensor Raw</description>
+            <properties read="true" notify="true" />
+            <value length="12" />
+        </characteristic>        
+ 
+    </service>
+ 
+</configuration>

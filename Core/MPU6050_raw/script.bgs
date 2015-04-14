@@ -1,0 +1,124 @@
+# Global Variables
+dim written
+dim result
+dim port
+dim data
+dim data_len
+dim connected
+dim sensor(12)
+ 
+# System Boot Event Listener
+event system_boot(major ,minor ,patch ,build ,ll_version ,protocol_version ,hw)
+ 
+    # Set Timer to Fire every 50ms (32768/1000ms * 50ms)
+    call hardware_set_soft_timer(1634, 1, 0)
+ 
+    # Set Timer to Fire every 1s (32768/1000ms * 1000ms)
+    #call hardware_set_soft_timer(32768, 1, 0)
+ 
+    # Initialize as 'disconnected'  
+    connected = 0
+    # Start Advertisement
+    call gap_set_mode(gap_general_discoverable, gap_undirected_connectable)
+    call sm_set_bondable_mode(1)
+ 
+    # Read WHO_AM_I Register (0x75) of Device at Address (Default address of MPU6050 is 0x68, which is then left shifted once to make 0xD0/208)
+    call hardware_i2c_write(208,0,1,"\x75")(written)
+    call hardware_i2c_read(208,1,1)(result,data_len,data)
+    call attributes_write(xgatt_who, 0, 1, data)
+ 
+    # Set Power Management Register (0x6B) to Use Gyro Clock (0x01)
+    #setClockSource(MPU6050_CLOCK_PLL_XGYRO);
+    #I2Cdev::writeBits(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, source);
+    #setSleepEnabled(false);
+    #I2Cdev::writeBit(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, enabled);
+    call hardware_i2c_write(208,1,2,"\x6b\x01")(written)
+ 
+    # Set Gyro Configuration Register (0x1B) to Zero (0x00)
+    #setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    #I2Cdev::writeBits(devAddr, MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, range);
+    call hardware_i2c_write(208,1,2,"\x1b\x00")(written)
+ 
+    # Set Accelerometer Configuration Register (0x1C) to Zero (0x00)
+    #setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    #I2Cdev::writeBits(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, range);
+    call hardware_i2c_write(208,1,2,"\x1c\x00")(written)
+
+    # Configure P0.7 as Output to a Time Tracking Accessory
+    #call hardware_io_port_config_direction(0, $80)
+    #call hardware_io_port_write(0, $80, 0)
+
+end
+ 
+# Connection Event Listener
+event connection_status(connection, flags, address, address_type, conn_interval, timeout, latency, bonding)
+
+    # Define a Connection Interval of 50ms (40*1.25ms)
+    if connected = 0 then
+        call connection_update(connection,40,40,latency,timeout)
+    end if 
+    connected = 1
+
+end
+ 
+# Disconnection Event Listener
+event connection_disconnected(connection, reason)
+
+    # Start Advertisement
+    call gap_set_mode(gap_general_discoverable, gap_undirected_connectable)
+    connected = 0
+
+end
+ 
+#Timer Event Listener
+event hardware_soft_timer(handle)
+
+    # Set P0.7 High to Enable Time Tracking
+    #call hardware_io_port_write(0, $80, $80)
+
+    # Read the Acceleration X, Y, Z (high, then low bytes) Registers and Write to the GATT Database
+    # Read the Rotation X,Y,Z (high, then low bytes) Registers and Write to the GATT Database
+
+    call hardware_i2c_write(208,0,1,"\x3b")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(0))
+
+    call hardware_i2c_write(208,0,1,"\x3c")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(1))
+ 
+    call hardware_i2c_write(208,0,1,"\x3d")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(2))
+ 
+    call hardware_i2c_write(208,0,1,"\x3e")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(3))
+ 
+    call hardware_i2c_write(208,0,1,"\x3f")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(4))
+ 
+    call hardware_i2c_write(208,0,1,"\x40")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(5))
+ 
+    call hardware_i2c_write(208,0,1,"\x43")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(6))
+ 
+    call hardware_i2c_write(208,0,1,"\x44")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(7))
+ 
+    call hardware_i2c_write(208,0,1,"\x45")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(8))
+ 
+    call hardware_i2c_write(208,0,1,"\x46")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(9))
+ 
+    call hardware_i2c_write(208,0,1,"\x47")(written)
+    call hardware_i2c_read(208,0,1)(result,data_len,sensor(10))
+ 
+    call hardware_i2c_write(208,0,1,"\x48")(written)
+    call hardware_i2c_read(208,1,1)(result,data_len,sensor(11))
+ 
+    # Set P0.7 low to Disable Time Tracking
+    #call hardware_io_port_write(0, $80, 0)
+
+    # Write Acceleration and Rotation to GATT Database
+    call attributes_write(xgatt_sensor, 0, 12, sensor(0:12))
+  
+end

@@ -1,0 +1,96 @@
+# Global Variables
+dim tmp(10)
+dim level
+
+# System Boot Event Listener
+event system_boot(major,minor,patch,build,ll_version,protocol,hw)
+
+	
+    # Configure LCD on the DKBLE113 on boot
+    #call hardware_io_port_write(1,$7,$1)
+
+    #call hardware_io_port_config_direction(1,$7)
+
+    #call hardware_spi_transfer(0,11,"\x30\x30\x30\x39\x14\x56\x6d\x70\x0c\x06\x01")
+
+    #call hardware_io_port_write(1,$7,$3)
+
+    #call hardware_spi_transfer(0,12,"Color Select")
+
+
+
+    # Start Advertisement
+    call gap_set_mode(gap_general_discoverable,gap_undirected_connectable)
+
+end
+
+# Command Available Event Listener
+# Generated when there is data available from the GATT database
+event attributes_value(connection ,reason ,handle ,offset ,value_len, value)
+
+
+    # Set Display to Command Mode
+
+    #call hardware_io_port_write(1,$7,$1)
+
+
+    # Move Cursor to Position 40
+
+    #call hardware_spi_transfer(0,1,"\xc0")
+
+
+    
+# Set Display to Data Mode
+
+    #call hardware_io_port_write(1,$7,$3)
+
+
+    # Configure GPIO Pins
+    call hardware_io_port_config_direction(0, $A8)
+
+    # Read and Process Attribute from GATT Database
+    
+level=value(0:1)
+
+    #P0_3:Red P0_5:Amber P0_7:Green
+    if level=2 then
+
+        #call hardware_spi_transfer(0,5,"Green")
+
+	call hardware_io_port_write(0,$80,$80)
+	call hardware_io_port_write(0,$20,$00)
+	call hardware_io_port_write(0,$08,$00)
+	end if
+
+    if level=1 then
+
+        #call hardware_spi_transfer(0,5,"Amber")
+
+	call hardware_io_port_write(0,$20,$20)
+	call hardware_io_port_write(0,$80,$00)
+	call hardware_io_port_write(0,$08,$00)
+	end if
+
+    if level=0 then
+
+        #call hardware_spi_transfer(0,5,"Red")
+
+	call hardware_io_port_write(0,$08,$08)
+	call hardware_io_port_write(0,$20,$00)
+	call hardware_io_port_write(0,$80,$00)
+	end if
+
+
+end
+
+
+
+# Disconnection Event Listener
+event connection_disconnected(handle,result)
+
+
+    # Start Advertisement
+    call gap_set_mode(gap_general_discoverable,gap_undirected_connectable)
+
+
+end

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <service uuid="1800">
+      <description>Generic Access Profile</description>
+
+      <characteristic uuid="2a00">
+        <properties read="true" const="true" />
+        <value>MPU6050 Arduino BLE113</value>
+      </characteristic>
+
+      <characteristic uuid="2a01">
+        <properties read="true" const="true" />
+        <value type="hex">8000</value>
+      </characteristic>
+    </service>
+
+    <service uuid="a0c68bd4-f034-4cfe-9800-e2f89d6606b8" advertise="true">
+ 
+        <characteristic uuid="a12d0001-1700-6050-0002-acce1e120000" id="xgatt_sensor1">
+            <description>Sensor1 (Accel) Raw</description>
+            <properties read="true" notify="true"/>
+            <value length="8" />
+        </characteristic>
+	
+	<characteristic uuid="a12d1001-1700-6050-0002-9a11205c06e0" id="xgatt_sensor2">
+            <description>Sensor2 (Gyro) Raw</description>
+            <properties read="true" notify="true"/>
+            <value length="8" />
+        </characteristic>
+
+    </service>
+
+</configuration>
